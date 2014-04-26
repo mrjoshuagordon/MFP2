@@ -1,11 +1,5 @@
 source("libraries.R")
 
-# tables = getData()
-# 
-# 
-# foodIn = foodOut(tables)
-
-
 shinyServer(function(input, output) {
   
   dataInput <- reactive({  
@@ -17,12 +11,12 @@ shinyServer(function(input, output) {
     max.date = Sys.Date()
     date = seq(as.Date(min.date, "%Y-%m-%d"), as.Date(max.date, "%Y-%m-%d"), by=1)
     
-    theurl = paste("http://www.myfitnesspal.com/reports/printable_diary/s2konstantine?from=", date[1], "&to=" , date[1], sep="") 
+    theurl = paste("http://www.myfitnesspal.com/reports/printable_diary/", input$un, "?from=", date[1], "&to=" , date[1], sep="") 
     scrape = readHTMLTable(theurl)
     
     ns = names(scrape[[1]])
     
-    theurl = paste("http://www.myfitnesspal.com/reports/printable_diary/s2konstantine?from=", min.date, "&to=" , max.date, sep="") 
+    theurl = paste("http://www.myfitnesspal.com/reports/printable_diary/", input$un, "?from=", min.date, "&to=" , max.date, sep="") 
     scrape = readHTMLTable(theurl, header=F)
     
     
@@ -60,16 +54,15 @@ shinyServer(function(input, output) {
       max.date = input$dates[2]
       date = seq(as.Date(min.date, "%Y-%m-%d"), as.Date(max.date, "%Y-%m-%d"), by=1)
       
-      theurl = paste("http://www.myfitnesspal.com/reports/printable_diary/s2konstantine?from=", date[1], "&to=" , date[1], sep="") 
+      theurl = paste("http://www.myfitnesspal.com/reports/printable_diary/", input$un, "?from=", date[1], "&to=" , date[1], sep="") 
       scrape = readHTMLTable(theurl)
       
       ns = names(scrape[[1]])
       
-      theurl = paste("http://www.myfitnesspal.com/reports/printable_diary/s2konstantine?from=", min.date, "&to=" , max.date, sep="") 
+      theurl = paste("http://www.myfitnesspal.com/reports/printable_diary/", input$un, "?from=", min.date, "&to=" , max.date, sep="") 
       scrape = readHTMLTable(theurl, header=F)
       
-      
-      ## add date back in *sigh*
+
       
       ######## Append Date ################################################
       tables = data.frame()
@@ -140,28 +133,18 @@ output$main_plot <- renderPlot({
   
   date = seq(from = input$dates[1], to = input$dates[2], by=1) 
   
+
   tables = tables1[as.character(tables1$day) %in% as.character(date) ,]
   
   foodIn = foodOut(tables)
   
   food.out  = foodIn[as.character(foodIn$day) %in% as.character(date), ]
-  
 
-  
-  
-  # Plot Macro Pie Chart
-  
-  par(mar=c(3.1, 3.1, 3.1, 3.1), xpd=TRUE) 
-  macros = c(mean(food.out$carbs)-mean(food.out$fiber), mean(food.out$fiber), mean(food.out$fat), mean(food.out$protein))
-  lbls = c("Carbs", "Fiber",  "Fat","Protein")
-  pie3D(macros,labels=lbls,explode=0.1,  main=paste("Average Macros:", format(min(date), "%b-%d"), "to",  format(max(date), "%b-%d"), sep=" "), col=c("darkgoldenrod2", "chartreuse4", "brown4", "blue3" ))
-  legend('bottomleft', pt.bg=c("darkgoldenrod2", "chartreuse4", "brown4", "blue3" ), pch=c(22,22,22,22), 
-         legend=paste(lbls, ":",  round(macros,0), "grams", sep=" "), inset=c(.05,.05))
-  
-  
   
   food.data =   cleanFood(tables)   
   
+  
+  # Bar Plot
   
   ff = aggregate(x =food.data$quant , by = list( food.data$day, food.data$food.type.Food, food.data$unit  ), FUN=sum) 
   names(ff) = c("date","food", "unit", "quantity")
@@ -194,23 +177,39 @@ output$main_plot <- renderPlot({
   
   par(mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE) 
   
-  bp = barplot(iv1$quantity, names.arg= format(iv1$date, "%b-%d"), main=
-                 paste(
-                   paste("Consumption of", food.query ,":", sum(iv1$quantity), unique(iv$unit)[1],  sep=" "), 
-                   paste(format(min(date), "%b-%d"), "to",  format(max(date), "%b-%d"), sep=" "),
-                   sep = "\n"
-                 )
-               
-               
+  bp = barplot(iv1$quantity, names.arg= format(iv1$date, "%b-%d"),               
                
                , xlab="Dates", ylab=as.character(unique(iv$unit)))
-  
+title(  main=
+    paste(
+      paste("Consumption of", food.query ,":\n", sum(iv1$quantity), unique(iv$unit)[1],  sep=" "), 
+      paste(format(min(date), "%b-%d"), "to",  format(max(date), "%b-%d"), sep=" "),
+      sep = "\n"
+    ) , cex.main=.85)
   
   legend('topright', pch=c(22,NA), pt.bg=c("gray", "red"), lty=c(NA,2),
          legend=c(as.character(unique(iv$unit)[1]), "  Trend"), inset=c(-.1,0), col=c("gray", "red") )
   
   lines(lowess(bp, iv1$quantity), col="red", lty=2)
   # abline(reg=lm(iv1$quantity~bp), col="red", lty=2)
+  
+  
+  
+
+  
+  
+  # Plot Macro Pie Chart
+  
+  par(mar=c(3.1, 3.1, 3.1, 3.1), xpd=TRUE) 
+  macros = c(mean(food.out$carbs)-mean(food.out$fiber), mean(food.out$fiber), mean(food.out$fat), mean(food.out$protein))
+  lbls = c("Carbs", "Fiber",  "Fat","Protein")
+  pie3D(macros,labels=lbls,explode=0.1,  main=paste("Average Calories:", round(mean(food.out$calories),0), "\n from" ,format(min(date), "%b-%d"), "to",  format(max(date), "%b-%d"), sep=" "), col=c("darkgoldenrod2", "chartreuse4", "brown4", "blue3" ))
+  legend('bottomleft', pt.bg=c("darkgoldenrod2", "chartreuse4", "brown4", "blue3" ), pch=c(22,22,22,22), 
+         legend=paste(lbls, ":",  round(macros,0), "grams", sep=" "), inset=c(.05,.05))
+  
+  
+  
+ 
   
   
 })
@@ -228,7 +227,7 @@ output$mytable5 = renderDataTable({
   
   ro = data.frame(ro[,1], round(ro[,3],1), ro[,2], ro[,4])
   names(ro) = c("Food",  "Quantity","Unit", "Frequency")
-  ro
+  ro[order(ro$Frequency, decreasing=T),]
   
   
 }, options = list(aLengthMenu = c(5, 20, 30), iDisplayLength = 5))
