@@ -4,6 +4,7 @@ shinyUI(bootstrapPage(
   
   
   sidebarPanel(
+  
     
     
     tags$head(
@@ -19,8 +20,8 @@ shinyUI(bootstrapPage(
     # Date Input
     dateRangeInput(inputId = "dates", 
                    label   ="Date range",
-                   start    = as.character(Sys.Date()-10), end = as.character(Sys.Date()-4)),
-   # actionButton("get", "Submit Date Range"),
+                   start    = as.character(Sys.Date()-1), end = as.character(Sys.Date())),
+    actionButton("get", "Submit Date Range"),
     htmlOutput("selectUI")
     
   ),

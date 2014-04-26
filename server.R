@@ -1,40 +1,104 @@
 source("libraries.R")
 
-tables = getData()
-
-foodIn = foodfoodOut = function(tables){
-  
-  food = tables
-  
-  date = food$day
-  calories = as.numeric(gsub(",","",food$Calories))
-  carbs = as.numeric(gsub("[A-z]", "", food$Carbs) )
-  fat = as.numeric(gsub("[A-z]", "", food$Fat) )
-  protein = as.numeric(gsub("[A-z]", "", food$Protein) )
-  fiber = as.numeric(gsub("[A-z]", "", food$Fiber) )
-  
-  temp = data.frame(calories, carbs, fat, protein, fiber) 
-  food.out = aggregate(temp, by=list(date), FUN=sum)
-  
-  names(food.out)[1] = "day"
-  return(food.out)
-}
-Out(tables)
-
+# tables = getData()
+# 
+# 
+# foodIn = foodOut(tables)
 
 
 shinyServer(function(input, output) {
+  
+  dataInput <- reactive({  
+    if(input$get == 0){
+      options(stringsAsFactors=TRUE)
+    
+    
+    min.date = Sys.Date()-1
+    max.date = Sys.Date()
+    date = seq(as.Date(min.date, "%Y-%m-%d"), as.Date(max.date, "%Y-%m-%d"), by=1)
+    
+    theurl = paste("http://www.myfitnesspal.com/reports/printable_diary/s2konstantine?from=", date[1], "&to=" , date[1], sep="") 
+    scrape = readHTMLTable(theurl)
+    
+    ns = names(scrape[[1]])
+    
+    theurl = paste("http://www.myfitnesspal.com/reports/printable_diary/s2konstantine?from=", min.date, "&to=" , max.date, sep="") 
+    scrape = readHTMLTable(theurl, header=F)
+    
+    
+    ## add date back in *sigh*
+    
+    ######## Append Date ################################################
+    tables = data.frame()
+    for(i in 1:length(scrape)){
+      
+      if(ncol(scrape[[i]])==length(ns)){
+        
+        day = rep(date[i],nrow(scrape[[i]])) 
+        temp =   data.frame(scrape[[i]], day ) 
+        tables = rbind(tables, temp)
+      } else{
+        tables =tables
+        
+      }
+      
+    }
+    
+    tables = na.omit(tables)
+    names(tables) = c(ns, "day")
+    tables$day = as.Date(tables$day, "%Y-%m-%d")
+    tables
+    }
+    
+    isolate({
+      
+      
+      options(stringsAsFactors=TRUE)
+      
+      
+      min.date = input$dates[1]
+      max.date = input$dates[2]
+      date = seq(as.Date(min.date, "%Y-%m-%d"), as.Date(max.date, "%Y-%m-%d"), by=1)
+      
+      theurl = paste("http://www.myfitnesspal.com/reports/printable_diary/s2konstantine?from=", date[1], "&to=" , date[1], sep="") 
+      scrape = readHTMLTable(theurl)
+      
+      ns = names(scrape[[1]])
+      
+      theurl = paste("http://www.myfitnesspal.com/reports/printable_diary/s2konstantine?from=", min.date, "&to=" , max.date, sep="") 
+      scrape = readHTMLTable(theurl, header=F)
+      
+      
+      ## add date back in *sigh*
+      
+      ######## Append Date ################################################
+      tables = data.frame()
+      for(i in 1:length(scrape)){
+        
+        if(ncol(scrape[[i]])==length(ns)){
+          
+          day = rep(date[i],nrow(scrape[[i]])) 
+          temp =   data.frame(scrape[[i]], day ) 
+          tables = rbind(tables, temp)
+        } else{
+          tables =tables
+          
+        }
+        
+      }
+      
+      tables = na.omit(tables)
+      names(tables) = c(ns, "day")
+      tables$day = as.Date(tables$day, "%Y-%m-%d")
+      tables
 
+    })
+  })
+  
+  
     
 getFood = reactive({
-    
-  options(stringsAsFactors=TRUE)
-  
-  min.date = input$dates[1]
-  max.date = input$dates[2]
-  date = seq(as.Date(min.date, "%Y-%m-%d"), as.Date(max.date, "%Y-%m-%d"), by=1)
-  
-  output = tables[tables$day %in% date,]
+  output = dataInput()
   output  
     
 })
@@ -78,6 +142,7 @@ output$main_plot <- renderPlot({
   
   tables = tables1[as.character(tables1$day) %in% as.character(date) ,]
   
+  foodIn = foodOut(tables)
   
   food.out  = foodIn[as.character(foodIn$day) %in% as.character(date), ]
   

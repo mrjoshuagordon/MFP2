@@ -58,50 +58,50 @@ library(XML)
 
 ########## Get Data Function  ##############################
 
-
-getData = function(){
-  
-  
-  options(stringsAsFactors=TRUE)
-  
-  
-  min.date = "2014-03-01"
-  max.date = Sys.Date()
-  date = seq(as.Date(min.date, "%Y-%m-%d"), as.Date(max.date, "%Y-%m-%d"), by=1)
-  
-  theurl = paste("http://www.myfitnesspal.com/reports/printable_diary/s2konstantine?from=", date[1], "&to=" , date[1], sep="") 
-  scrape = readHTMLTable(theurl)
-  
-  ns = names(scrape[[1]])
-  
-  theurl = paste("http://www.myfitnesspal.com/reports/printable_diary/s2konstantine?from=", min.date, "&to=" , max.date, sep="") 
-  scrape = readHTMLTable(theurl, header=F)
-  
-  
-  ## add date back in *sigh*
-  
-  ######## Append Date ################################################
-  tables = data.frame()
-  for(i in 1:length(scrape)){
-    
-    if(ncol(scrape[[i]])==length(ns)){
-      
-      day = rep(date[i],nrow(scrape[[i]])) 
-      temp =   data.frame(scrape[[i]], day ) 
-      tables = rbind(tables, temp)
-    } else{
-      tables =tables
-      
-    }
-    
-  }
-  
-  tables = na.omit(tables)
-  names(tables) = c(ns, "day")
-  tables$day = as.Date(tables$day, "%Y-%m-%d")
-  return(tables)
-  
-}
+# 
+# getData = function(){
+#   
+#   
+#   options(stringsAsFactors=TRUE)
+#   
+#   
+#   min.date = "2014-04-20"
+#   max.date = Sys.Date()
+#   date = seq(as.Date(min.date, "%Y-%m-%d"), as.Date(max.date, "%Y-%m-%d"), by=1)
+#   
+#   theurl = paste("http://www.myfitnesspal.com/reports/printable_diary/s2konstantine?from=", date[1], "&to=" , date[1], sep="") 
+#   scrape = readHTMLTable(theurl)
+#   
+#   ns = names(scrape[[1]])
+#   
+#   theurl = paste("http://www.myfitnesspal.com/reports/printable_diary/s2konstantine?from=", min.date, "&to=" , max.date, sep="") 
+#   scrape = readHTMLTable(theurl, header=F)
+#   
+#   
+#   ## add date back in *sigh*
+#   
+#   ######## Append Date ################################################
+#   tables = data.frame()
+#   for(i in 1:length(scrape)){
+#     
+#     if(ncol(scrape[[i]])==length(ns)){
+#       
+#       day = rep(date[i],nrow(scrape[[i]])) 
+#       temp =   data.frame(scrape[[i]], day ) 
+#       tables = rbind(tables, temp)
+#     } else{
+#       tables =tables
+#       
+#     }
+#     
+#   }
+#   
+#   tables = na.omit(tables)
+#   names(tables) = c(ns, "day")
+#   tables$day = as.Date(tables$day, "%Y-%m-%d")
+#   return(tables)
+#   
+# }
 
 
 
