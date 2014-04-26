@@ -6,22 +6,41 @@ calc = function(x){
   
   x1 = c()
   for(i in 1:length(x)){
+    # for(i in 240){
     
     
-    t = try(eval(parse(text=x[i])) , silent=T)
+    t=   try(eval(parse(text=x[i])) , silent=T)
     if("try-error" %in% class(t)) {
       
+      
+      
       v  = strsplit(x[i], " ")
+      
       v = v[[1]][which(nchar(v[[1]]) != 0)]
       
-      x1[i] =    sum(calc(v))
+      temp = c()
+      for(j in 1:length(v)) {
+        t1 =   try(eval(parse(text=v[j])) , silent=T)
+        
+        if("try-error" %in% class(t1)) { 
+          v[j] = gsub("/", "0", v[j])
+          v[j] = gsub(".", "0", v[j])
+          temp[j] = sum(eval(parse(text=v[j])) )
+        } else {       
+          temp[j] = sum(eval(parse(text=v[j])) )
+        }
+        
+        
+      }
+      
+      x1[i] =  sum(temp)
       
     } else{
       
       x1[i] =   eval(parse(text=x[i])) 
       
     }
-    
+   # print(i)
     
   }
   
@@ -99,13 +118,17 @@ cleanFood = function(tables){
   
   h = as.character(tables[,1])
   
-  food.type = data.frame()
-  
+  h1 = strsplit(h, ",") 
+  Food = c()
+  Quantity = c()
   for(i in 1:length(h)){
-    temp = data.frame(strsplit(h[i], ",")[[1]][1], strsplit(h[i], ",")[[1]][length(strsplit(h[i], ",")[[1]]) ] )
-    food.type = rbind(food.type, temp)  
+    Food[i] = h1[[i]][1] 
+    Quantity[i] = h1[[i]][length(h1[[i]]) ]  
+    
     
   }
+  
+  food.type = data.frame(Food, Quantity) 
   
   
   
@@ -120,9 +143,10 @@ cleanFood = function(tables){
   #food.type$Quantity =  sub("[0-9] .*", "", food.type$Quantity)
 
   temp = gsub("[A-z]", "", food.type$Quantity)
-  temp = gsub("(?!/)[[:punct:]]", "", temp, perl=TRUE)
+  temp = gsub("(?!/)|(?!/.)[[:punct:]]", "", temp, perl=TRUE)
   
-  quant =  calc(  temp )
+  options(scipen=999)
+  quant = as.numeric(round(calc(temp),2))
   
   food.data = data.frame(food.type$Food,quant, unit)
   
@@ -130,5 +154,25 @@ cleanFood = function(tables){
   
   return(food.data)
   
+}
+
+
+
+foodOut = function(tables){
+  
+    food = tables
+    
+    date = food$day
+    calories = as.numeric(gsub(",","",food$Calories))
+    carbs = as.numeric(gsub("[A-z]", "", food$Carbs) )
+    fat = as.numeric(gsub("[A-z]", "", food$Fat) )
+    protein = as.numeric(gsub("[A-z]", "", food$Protein) )
+    fiber = as.numeric(gsub("[A-z]", "", food$Fiber) )
+    
+    temp = data.frame(calories, carbs, fat, protein, fiber) 
+    food.out = aggregate(temp, by=list(date), FUN=sum)
+      
+    names(food.out)[1] = "day"
+  return(food.out)
 }
 

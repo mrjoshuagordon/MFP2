@@ -19,14 +19,17 @@ shinyUI(bootstrapPage(
     # Date Input
     dateRangeInput(inputId = "dates", 
                    label   ="Date range",
-                   start    = as.character(Sys.Date()-10), end = as.character(Sys.Date()-4))
+                   start    = as.character(Sys.Date()-10), end = as.character(Sys.Date()-4)),
+   # actionButton("get", "Submit Date Range"),
+    htmlOutput("selectUI")
     
   ),
   
 
   
   # Plot it 
-  mainPanel( 
+  mainPanel( div(align = "center",
+                 plotOutput(outputId = "main_plot", height = "500px", width="1200px") ),
   tabPanel('mfp data', dataTableOutput("mytable4")),
   tabPanel('mfp data', dataTableOutput("mytable5"))
         )
