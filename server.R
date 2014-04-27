@@ -1,6 +1,7 @@
 source("libraries.R")
 
-shinyServer(function(input, output) {
+
+shinyServer(function(input, output,session) {
   
   dataInput <- reactive({  
     if(input$get == 0){
@@ -129,7 +130,7 @@ output$main_plot <- renderPlot({
   food = getFood()
   tables1 = food 
   
-  par(mfrow=c(1,2))
+#  par(mfrow=c(1,2))
   
   date = seq(from = input$dates[1], to = input$dates[2], by=1) 
   
@@ -197,8 +198,48 @@ title(  main=
   
 
   
+#   
+#   # Plot Macro Pie Chart
+#   
+#   par(mar=c(3.1, 3.1, 3.1, 3.1), xpd=TRUE) 
+#   macros = c(mean(food.out$carbs)-mean(food.out$fiber), mean(food.out$fiber), mean(food.out$fat), mean(food.out$protein))
+#   lbls = c("Carbs", "Fiber",  "Fat","Protein")
+#   pie3D(macros,labels=lbls,explode=0.1,  main=paste("Average Calories:", round(mean(food.out$calories),0), "\n from" ,format(min(date), "%b-%d"), "to",  format(max(date), "%b-%d"), sep=" "), col=c("darkgoldenrod2", "chartreuse4", "brown4", "blue3" ))
+#   legend('bottomleft', pt.bg=c("darkgoldenrod2", "chartreuse4", "brown4", "blue3" ), pch=c(22,22,22,22), 
+#          legend=paste(lbls, ":",  round(macros,0), "grams", sep=" "), inset=c(.05,.05))
+#   
   
-  # Plot Macro Pie Chart
+  
+ 
+  
+  
+})
+
+
+
+
+
+output$main_plot1 <- renderPlot({
+  # Get Data 
+  
+  food = getFood()
+  tables1 = food 
+  
+#  par(mfrow=c(1,2))
+  
+  date = seq(from = input$dates[1], to = input$dates[2], by=1) 
+  tables = tables1[as.character(tables1$day) %in% as.character(date) ,]
+  foodIn = foodOut(tables)
+  food.out  = foodIn[as.character(foodIn$day) %in% as.character(date), ]
+  food.data =   cleanFood(tables)   
+  
+  
+  
+  
+  
+ # Plot Macro Pie Chart
+
+if(input$plotType1 == "p"){
   
   par(mar=c(3.1, 3.1, 3.1, 3.1), xpd=TRUE) 
   macros = c(mean(food.out$carbs)-mean(food.out$fiber), mean(food.out$fiber), mean(food.out$fat), mean(food.out$protein))
@@ -208,8 +249,24 @@ title(  main=
          legend=paste(lbls, ":",  round(macros,0), "grams", sep=" "), inset=c(.05,.05))
   
   
+} else{
   
- 
+  dat = food.out[,c(3,6,5,4)]
+  dat$carbs = dat$carbs*4
+  dat$fiber = dat$fiber*2
+  dat$protein = dat$protein*4
+  dat$fat = dat$fat*9
+  
+  
+  par(mar=c(3.1, 3.1, 3.1, 8.1), xpd=TRUE) 
+  lbls = c("Carbs", "Fiber", "Protein", "Fat") 
+  barplot(t(as.matrix(dat)), col=c("darkgoldenrod2", "chartreuse4", "brown4", "blue3"), cex.axis=.7, cex.names=.7, ylab="Calories", names.arg=format(food.out$day,"%b-%d"))
+  title(main=paste(round(mean(food.out$calories),0)," Calories from Macros:", "\n from" ,format(min(food.out$day), "%b-%d"), "to",  format(max(food.out$day), "%b-%d"), sep=" "))
+  legend('topright', pt.bg=c("darkgoldenrod2", "chartreuse4", "brown4", "blue3","red" ), col=c("darkgoldenrod2", "chartreuse4", "brown4", "blue3","red" ), lty = c(NA,NA,NA,NA,2) , pch=c(22,22,22,22,NA),
+         legend=c(lbls, "Average"), inset=c(-.25,-.05))
+  abline(h=mean(food.out$calories), lty=2, col="red")
+}
+  
   
   
 })

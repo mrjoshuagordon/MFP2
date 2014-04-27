@@ -55,6 +55,8 @@ library(plotrix)
 library(xts)
 library(RCurl)
 library(XML)
+library(markdown)
+
 
 ########## Get Data Function  ##############################
 
@@ -102,8 +104,8 @@ library(XML)
 #   return(tables)
 #   
 # }
-
-
+# 
+# 
 
 
 #Daily Get Macros ##################################################
