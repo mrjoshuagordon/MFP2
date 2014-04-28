@@ -3,7 +3,10 @@ source("libraries.R")
 
 shinyServer(function(input, output,session) {
   
-  dataInput <- reactive({  
+  dataInput <- reactive({
+  
+    if( (tolower(input$un) %in% c("s2konstantine", "zj95maxx") )) {  # Authentication Attempt 
+    
     if(input$get == 0){
       options(stringsAsFactors=TRUE)
     
@@ -43,7 +46,7 @@ shinyServer(function(input, output,session) {
     names(tables) = c(ns, "day")
     tables$day = as.Date(tables$day, "%Y-%m-%d")
     tables
-    }
+    } # End if empty check set to s2konstantine 
     
     isolate({
       
@@ -86,7 +89,55 @@ shinyServer(function(input, output,session) {
       tables$day = as.Date(tables$day, "%Y-%m-%d")
       tables
 
-    })
+    }) # End Isolate 
+    
+    } else{  # else for authentication, set to s2konstantine 
+      if(input$get == 0  || !(tolower(input$un) %in% c("s2konstantine", "zj95maxx") ) ){
+        options(stringsAsFactors=TRUE)
+        
+        
+        min.date = Sys.Date()-2
+        max.date = Sys.Date()
+        date = seq(as.Date(min.date, "%Y-%m-%d"), as.Date(max.date, "%Y-%m-%d"), by=1)
+        
+        theurl = paste("http://www.myfitnesspal.com/reports/printable_diary/", "s2konstantine", "?from=", date[1], "&to=" , date[1], sep="") 
+        scrape = readHTMLTable(theurl, header=F)
+        
+        ns = c("Foods" ,   "Calories" ,"Carbs" ,   "Fat"     , "Protein"  ,"Cholest" , "Sodium"  , "Sugars" ,  "Fiber"  ) 
+        
+        theurl = paste("http://www.myfitnesspal.com/reports/printable_diary/", "s2konstantine", "?from=", min.date, "&to=" , max.date, sep="") 
+        scrape = readHTMLTable(theurl, header=F)
+        
+        
+        ## add date back in *sigh*
+        
+        ######## Append Date ################################################
+        tables = data.frame()
+        for(i in 1:length(scrape)){
+          
+          if(ncol(scrape[[i]])==length(ns)){
+            
+            day = rep(date[i],nrow(scrape[[i]])) 
+            temp =   data.frame(scrape[[i]], day ) 
+            tables = rbind(tables, temp)
+          } else{
+            tables =tables
+            
+          }
+          
+        }
+        
+        tables = na.omit(tables)
+        names(tables) = c(ns, "day")
+        tables$day = as.Date(tables$day, "%Y-%m-%d")
+        tables
+      }
+      
+      
+      
+      
+    }
+    
   })
   
   
@@ -319,6 +370,19 @@ output$text2 <- renderText({
 output$text3 <- renderText({ 
 ""
 
+})
+
+output$text_un <- renderText({ 
+  
+  if( (tolower(input$un) %in% c("s2konstantine", "zj95maxx") )) { 
+paste("MFP Data for: ", input$un, sep="")
+
+} else {
+  
+  "NOT A VALID USER"
+  
+} 
+  
 })
 
 

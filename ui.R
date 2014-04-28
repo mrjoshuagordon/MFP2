@@ -48,6 +48,7 @@ shinyUI(navbarPage("MyFitnessPal Analyzer",
                    tabPanel("Macro Analysis",
                             sidebarLayout(
                               sidebarPanel(
+                                h4(textOutput("text_un")),
                                 h6(textOutput("text_start")),
                                 textInput("un", "MyFitnessPal User Name:", "s2konstantine"),
                                 dateRangeInput(inputId = "dates", 

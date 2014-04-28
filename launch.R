@@ -6,3 +6,6 @@ source("libraries.R")
 
 
 runApp(getwd())
+
+
+#http://glimmer.rstudio.com/joshuagordon/MyFitnessPal_Analyzer/
