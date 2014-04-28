@@ -5,7 +5,7 @@ shinyServer(function(input, output,session) {
   
   dataInput <- reactive({
   
-    if( (tolower(input$un) %in% c("s2konstantine", "zj95maxx") )) {  # Authentication Attempt 
+    if( (tolower(input$un) %in% c("s2konstantine", "zj95maxx", "myfitnesspalanalyzer") )) {  # Authentication Attempt 
     
     if(input$get == 0){
       options(stringsAsFactors=TRUE)
@@ -15,12 +15,12 @@ shinyServer(function(input, output,session) {
     max.date = Sys.Date()
     date = seq(as.Date(min.date, "%Y-%m-%d"), as.Date(max.date, "%Y-%m-%d"), by=1)
     
-    theurl = paste("http://www.myfitnesspal.com/reports/printable_diary/", "s2konstantine", "?from=", date[1], "&to=" , date[1], sep="") 
+    theurl = paste("http://www.myfitnesspal.com/reports/printable_diary/", "MyFitnessPalAnalyzer", "?from=", date[1], "&to=" , date[1], sep="") 
     scrape = readHTMLTable(theurl, header=F)
     
     ns = c("Foods" ,   "Calories" ,"Carbs" ,   "Fat"     , "Protein"  ,"Cholest" , "Sodium"  , "Sugars" ,  "Fiber"  ) 
     
-    theurl = paste("http://www.myfitnesspal.com/reports/printable_diary/", "s2konstantine", "?from=", min.date, "&to=" , max.date, sep="") 
+    theurl = paste("http://www.myfitnesspal.com/reports/printable_diary/", "MyFitnessPalAnalyzer", "?from=", min.date, "&to=" , max.date, sep="") 
     scrape = readHTMLTable(theurl, header=F)
     
     
@@ -100,12 +100,12 @@ shinyServer(function(input, output,session) {
         max.date = Sys.Date()
         date = seq(as.Date(min.date, "%Y-%m-%d"), as.Date(max.date, "%Y-%m-%d"), by=1)
         
-        theurl = paste("http://www.myfitnesspal.com/reports/printable_diary/", "s2konstantine", "?from=", date[1], "&to=" , date[1], sep="") 
+        theurl = paste("http://www.myfitnesspal.com/reports/printable_diary/", "MyFitnessPalAnalyzer", "?from=", date[1], "&to=" , date[1], sep="") 
         scrape = readHTMLTable(theurl, header=F)
         
         ns = c("Foods" ,   "Calories" ,"Carbs" ,   "Fat"     , "Protein"  ,"Cholest" , "Sodium"  , "Sugars" ,  "Fiber"  ) 
         
-        theurl = paste("http://www.myfitnesspal.com/reports/printable_diary/", "s2konstantine", "?from=", min.date, "&to=" , max.date, sep="") 
+        theurl = paste("http://www.myfitnesspal.com/reports/printable_diary/", "MyFitnessPalAnalyzer", "?from=", min.date, "&to=" , max.date, sep="") 
         scrape = readHTMLTable(theurl, header=F)
         
         
@@ -374,7 +374,7 @@ output$text3 <- renderText({
 
 output$text_un <- renderText({ 
   
-  if( (tolower(input$un) %in% c("s2konstantine", "zj95maxx") )) { 
+  if( (tolower(input$un) %in% c("s2konstantine", "zj95maxx","myfitnesspalanalyzer") )) { 
 paste("MFP Data for: ", input$un, sep="")
 
 } else {

@@ -50,7 +50,7 @@ shinyUI(navbarPage("MyFitnessPal Analyzer",
                               sidebarPanel(
                                 h4(textOutput("text_un")),
                                 h6(textOutput("text_start")),
-                                textInput("un", "MyFitnessPal User Name:", "s2konstantine"),
+                                textInput("un", "MyFitnessPal User Name:", "MyFitnessPalAnalyzer"),
                                 dateRangeInput(inputId = "dates", 
                                                label   ="Date range",
                                                start    = as.character(Sys.Date()-3), end = as.character(Sys.Date())),
