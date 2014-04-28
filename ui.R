@@ -45,15 +45,20 @@
 library(markdown)
 
 shinyUI(navbarPage("MyFitnessPal Analyzer",
-                   tabPanel("Plot",
+                   tabPanel("Macro Analysis",
                             sidebarLayout(
                               sidebarPanel(
+                                h6(textOutput("text_start")),
+                                textInput("un", "MyFitnessPal User Name:", "s2konstantine"),
                                 dateRangeInput(inputId = "dates", 
                                                label   ="Date range",
-                                               start    = as.character(Sys.Date()-1), end = as.character(Sys.Date())),
-                                textInput("un", "User Name:", "s2konstantine"),
-                                actionButton("get", "Submit Date Range"),
-                                htmlOutput("selectUI")
+                                               start    = as.character(Sys.Date()-3), end = as.character(Sys.Date())),
+                                
+                                actionButton("get", "Submit User Name and Dates"),
+                                radioButtons("plotType1", "Chart Type",
+                                             c("Bar Chart"="b","Pie Chart"="p")
+                                )
+                                
                                 
                               ),
                               mainPanel(
@@ -61,15 +66,16 @@ shinyUI(navbarPage("MyFitnessPal Analyzer",
                               )
                             )
                    ),
-                   tabPanel("Summary",
+                   tabPanel("Food Analysis",
                             
                             sidebarLayout(
                               sidebarPanel(
-                                radioButtons("plotType1", "Plot type",
-                                             c("Bar"="b","Pie"="p")
-                                )
+                                h3(textOutput("text1")),
+                                htmlOutput("selectUI")
+                                
                               ),
                               mainPanel(
+                               
                                 plotOutput(outputId = "main_plot1", height = "500px", width="500px")
                               )
                             ) 
@@ -77,9 +83,40 @@ shinyUI(navbarPage("MyFitnessPal Analyzer",
                              
                    ),
                    
-                   tabPanel("Table",
+                   tabPanel("Food Data",
+                            h3(textOutput("text2")),
                             dataTableOutput("mytable5")
                             
                             
+                   ),
+                   tabPanel("About",
+                            fluidRow(
+                              column(6,
+                                     textOutput("text3"),
+                                     column(6,
+                                            tags$small(
+                                              "I built this web app because the data analytics 
+                                              offered by MyFitnessPal is lacking. Please Send 
+                                              Bugs and Enhancement Requests to: ",
+                                              
+                                              a(href="mailto:galaxy.josh@gmail.com",
+                                                "galaxy.josh@gmail.com")
+                                            )
+                                     ),
+                                     
+                                     column(6,
+                                            img(class="img-polaroid",
+                                                src=paste0("https://googledrive.com/host/0BzKoMvuVz4xURU8xbk5YT3A2WUE/me.jpg")),
+                                            tags$small(
+                                              "Source: Photographed in Santa Monica, CA",
+                                              a(href="http://www.everytrail.com/guide/los-liones-trail-to-parker-mesa",
+                                                "Los Liones Trail")
+                                            )
+                                     )
+                                    
+#                                    
+                                     
+                              )
+                            )
                    )
 ))

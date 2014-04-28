@@ -2,51 +2,62 @@
 
 ####### Functions#####################################
 
+
 calc = function(x){
-  
-  x1 = c()
-  for(i in 1:length(x)){
-    # for(i in 240){
-    
-    
-    t=   try(eval(parse(text=x[i])) , silent=T)
-    if("try-error" %in% class(t)) {
+  if(length(x)>0) {
+    x1 = c()
+    for(i in 1:length(x)){
+      # for(i in 240){
       
       
-      
-      v  = strsplit(x[i], " ")
-      
-      v = v[[1]][which(nchar(v[[1]]) != 0)]
-      
-      temp = c()
-      for(j in 1:length(v)) {
-        t1 =   try(eval(parse(text=v[j])) , silent=T)
+      t=   try(eval(parse(text=x[i])) , silent=T)
+      if("try-error" %in% class(t) || is.null(t)==T) {
         
-        if("try-error" %in% class(t1)) { 
-          v[j] = gsub("/", "0", v[j])
-          v[j] = gsub(".", "0", v[j])
-          temp[j] = sum(eval(parse(text=v[j])) )
-        } else {       
-          temp[j] = sum(eval(parse(text=v[j])) )
+        
+        
+        v  = strsplit(x[i], " ")
+        
+        v = v[[1]][which(nchar(v[[1]]) != 0)]
+        
+        if(length(v)>0){
+          temp = c()
+          for(j in 1:length(v)) {
+            t1 =   try(eval(parse(text=v[j])) , silent=T)
+            
+            if("try-error" %in% class(t1)) { 
+              v[j] = gsub("/", "0", v[j])
+              v[j] = gsub(".", "0", v[j])
+              temp[j] = sum(eval(parse(text=v[j])) )
+            } else {       
+              temp[j] = sum(eval(parse(text=v[j])) )
+            }
+            
+            
+          }
+          
+          x1[i] =  sum(temp)
+        } else{
+          
+          x1[i] = 0
+          
         }
+      } else{
         
+        x1[i] =   eval(parse(text=x[i])) 
         
       }
+      #print(i)
       
-      x1[i] =  sum(temp)
-      
-    } else{
-      
-      x1[i] =   eval(parse(text=x[i])) 
-      
-    }
-   # print(i)
+    } # End For
     
+  } else{
+    
+    x1 = 0
   }
+ # print(i)
   
   return(x1)
 } 
-
 
 
 ######### Libraries

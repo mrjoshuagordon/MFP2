@@ -8,16 +8,16 @@ shinyServer(function(input, output,session) {
       options(stringsAsFactors=TRUE)
     
     
-    min.date = Sys.Date()-1
+    min.date = Sys.Date()-2
     max.date = Sys.Date()
     date = seq(as.Date(min.date, "%Y-%m-%d"), as.Date(max.date, "%Y-%m-%d"), by=1)
     
-    theurl = paste("http://www.myfitnesspal.com/reports/printable_diary/", input$un, "?from=", date[1], "&to=" , date[1], sep="") 
-    scrape = readHTMLTable(theurl)
+    theurl = paste("http://www.myfitnesspal.com/reports/printable_diary/", "s2konstantine", "?from=", date[1], "&to=" , date[1], sep="") 
+    scrape = readHTMLTable(theurl, header=F)
     
-    ns = names(scrape[[1]])
+    ns = c("Foods" ,   "Calories" ,"Carbs" ,   "Fat"     , "Protein"  ,"Cholest" , "Sodium"  , "Sugars" ,  "Fiber"  ) 
     
-    theurl = paste("http://www.myfitnesspal.com/reports/printable_diary/", input$un, "?from=", min.date, "&to=" , max.date, sep="") 
+    theurl = paste("http://www.myfitnesspal.com/reports/printable_diary/", "s2konstantine", "?from=", min.date, "&to=" , max.date, sep="") 
     scrape = readHTMLTable(theurl, header=F)
     
     
@@ -56,9 +56,9 @@ shinyServer(function(input, output,session) {
       date = seq(as.Date(min.date, "%Y-%m-%d"), as.Date(max.date, "%Y-%m-%d"), by=1)
       
       theurl = paste("http://www.myfitnesspal.com/reports/printable_diary/", input$un, "?from=", date[1], "&to=" , date[1], sep="") 
-      scrape = readHTMLTable(theurl)
+      scrape = readHTMLTable(theurl, header=F)
       
-      ns = names(scrape[[1]])
+      ns = c("Foods" ,   "Calories" ,"Carbs" ,   "Fat"     , "Protein"  ,"Cholest" , "Sodium"  , "Sugars" ,  "Fiber"  ) 
       
       theurl = paste("http://www.myfitnesspal.com/reports/printable_diary/", input$un, "?from=", min.date, "&to=" , max.date, sep="") 
       scrape = readHTMLTable(theurl, header=F)
@@ -124,102 +124,10 @@ getDrop = reactive({
 
 
 
+
+
+
 output$main_plot <- renderPlot({
-  # Get Data 
-  
-  food = getFood()
-  tables1 = food 
-  
-#  par(mfrow=c(1,2))
-  
-  date = seq(from = input$dates[1], to = input$dates[2], by=1) 
-  
-
-  tables = tables1[as.character(tables1$day) %in% as.character(date) ,]
-  
-  foodIn = foodOut(tables)
-  
-  food.out  = foodIn[as.character(foodIn$day) %in% as.character(date), ]
-
-  
-  food.data =   cleanFood(tables)   
-  
-  
-  # Bar Plot
-  
-  ff = aggregate(x =food.data$quant , by = list( food.data$day, food.data$food.type.Food, food.data$unit  ), FUN=sum) 
-  names(ff) = c("date","food", "unit", "quantity")
-  
-  
-  ### List starts empty #########################################
-  if(length(input$foodName) == 0) {
-    
-    food.query = as.character(ff[,2][1])
-    
-  } else {
-    
-    food.query = input$foodName 
-    
-  }
-  #####################################################################
-  
-  iv = ff[which(ff[,2] == food.query ),]
-  iv$date = as.Date(iv$date, "%Y-%m-%d")
-  dr = seq(min(date), max(date), by=1)
-  
-  ###### Iniate an Empty Data Frame with Date Range ########################################
-  iv1 = data.frame(dr, rep(0,length(dr)))
-  names(iv1) = c("date", "quantity")
-  
-  ##### Fill the Data Frame ################################################################# 
-  iv1$quantity[match(iv$date,iv1$date)] = iv$quantity
-  
-  
-  
-  par(mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE) 
-  
-  bp = barplot(iv1$quantity, names.arg= format(iv1$date, "%b-%d"),               
-               
-               , xlab="Dates", ylab=as.character(unique(iv$unit)))
-title(  main=
-    paste(
-      paste("Consumption of", food.query ,":\n", sum(iv1$quantity), unique(iv$unit)[1],  sep=" "), 
-      paste(format(min(date), "%b-%d"), "to",  format(max(date), "%b-%d"), sep=" "),
-      sep = "\n"
-    ) , cex.main=.85)
-  
-  legend('topright', pch=c(22,NA), pt.bg=c("gray", "red"), lty=c(NA,2),
-         legend=c(as.character(unique(iv$unit)[1]), "  Trend"), inset=c(-.1,0), col=c("gray", "red") )
-  
-  lines(lowess(bp, iv1$quantity), col="red", lty=2)
-  # abline(reg=lm(iv1$quantity~bp), col="red", lty=2)
-  
-  
-  
-
-  
-#   
-#   # Plot Macro Pie Chart
-#   
-#   par(mar=c(3.1, 3.1, 3.1, 3.1), xpd=TRUE) 
-#   macros = c(mean(food.out$carbs)-mean(food.out$fiber), mean(food.out$fiber), mean(food.out$fat), mean(food.out$protein))
-#   lbls = c("Carbs", "Fiber",  "Fat","Protein")
-#   pie3D(macros,labels=lbls,explode=0.1,  main=paste("Average Calories:", round(mean(food.out$calories),0), "\n from" ,format(min(date), "%b-%d"), "to",  format(max(date), "%b-%d"), sep=" "), col=c("darkgoldenrod2", "chartreuse4", "brown4", "blue3" ))
-#   legend('bottomleft', pt.bg=c("darkgoldenrod2", "chartreuse4", "brown4", "blue3" ), pch=c(22,22,22,22), 
-#          legend=paste(lbls, ":",  round(macros,0), "grams", sep=" "), inset=c(.05,.05))
-#   
-  
-  
- 
-  
-  
-})
-
-
-
-
-
-output$main_plot1 <- renderPlot({
   # Get Data 
   
   food = getFood()
@@ -269,7 +177,106 @@ if(input$plotType1 == "p"){
   
   
   
-})
+}) # End main_plot
+
+output$main_plot1 <- renderPlot({
+  # Get Data 
+  
+  food = getFood()
+  tables1 = food 
+  
+  #  par(mfrow=c(1,2))
+  
+  date = seq(from = input$dates[1], to = input$dates[2], by=1) 
+  
+  
+  tables = tables1[as.character(tables1$day) %in% as.character(date) ,]
+  
+  foodIn = foodOut(tables)
+  
+  food.out  = foodIn[as.character(foodIn$day) %in% as.character(date), ]
+  
+  
+  food.data =   cleanFood(tables)   
+  
+  
+  # Bar Plot
+  
+  ff = aggregate(x =food.data$quant , by = list( food.data$day, food.data$food.type.Food, food.data$unit  ), FUN=sum) 
+  names(ff) = c("date","food", "unit", "quantity")
+  
+  
+  ### List starts empty #########################################
+  if(length(input$foodName) == 0) {
+    
+    food.query = as.character(ff[,2][1])
+    
+  } else {
+    
+    food.query = input$foodName 
+    
+  }
+  #####################################################################
+  
+  iv = ff[which(ff[,2] == food.query ),]
+  iv$date = as.Date(iv$date, "%Y-%m-%d")
+  dr = seq(min(date), max(date), by=1)
+  
+  ###### Iniate an Empty Data Frame with Date Range ########################################
+  iv1 = data.frame(dr, rep(0,length(dr)))
+  names(iv1) = c("date", "quantity")
+  
+  ##### Fill the Data Frame ################################################################# 
+  iv1$quantity[match(iv$date,iv1$date)] = iv$quantity
+  
+  
+  
+  par(mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE) 
+  
+  bp = barplot(iv1$quantity, names.arg= format(iv1$date, "%b-%d"),               
+               
+               , xlab="Dates", ylab=as.character(unique(iv$unit)[1]))
+  title(  main=
+            paste(
+              paste("Consumption of", food.query ,":", sum(iv1$quantity), unique(iv$unit)[1],  sep=" "), 
+              paste(format(min(date), "%b-%d"), "to",  format(max(date), "%b-%d"), sep=" "),
+              sep = "\n"
+            ) , cex.main=.95)
+  
+  legend('topright', pch=c(22,NA), pt.bg=c("gray", "red"), lty=c(NA,2),
+         legend=c(as.character(unique(iv$unit)[1]), "  Average"), inset=c(-.25,0), col=c("gray", "red") )
+  
+  #lines(lowess(bp, iv1$quantity), col="red", lty=2)
+  # abline(reg=lm(iv1$quantity~bp), col="red", lty=2)
+  abline(h=mean(iv1$quantity), col="red", lty=2)
+  
+  
+  
+  
+  
+  #   
+  #   # Plot Macro Pie Chart
+  #   
+  #   par(mar=c(3.1, 3.1, 3.1, 3.1), xpd=TRUE) 
+  #   macros = c(mean(food.out$carbs)-mean(food.out$fiber), mean(food.out$fiber), mean(food.out$fat), mean(food.out$protein))
+  #   lbls = c("Carbs", "Fiber",  "Fat","Protein")
+  #   pie3D(macros,labels=lbls,explode=0.1,  main=paste("Average Calories:", round(mean(food.out$calories),0), "\n from" ,format(min(date), "%b-%d"), "to",  format(max(date), "%b-%d"), sep=" "), col=c("darkgoldenrod2", "chartreuse4", "brown4", "blue3" ))
+  #   legend('bottomleft', pt.bg=c("darkgoldenrod2", "chartreuse4", "brown4", "blue3" ), pch=c(22,22,22,22), 
+  #          legend=paste(lbls, ":",  round(macros,0), "grams", sep=" "), inset=c(.05,.05))
+  #   
+  
+  
+  
+  
+  
+}) # End main_plot1
+
+
+
+
+
+
+
 
 
 
@@ -287,7 +294,7 @@ output$mytable5 = renderDataTable({
   ro[order(ro$Frequency, decreasing=T),]
   
   
-}, options = list(aLengthMenu = c(5, 20, 30), iDisplayLength = 5))
+}, options = list(aLengthMenu = c(5, 20, 30), iDisplayLength = 10))
 
 output$selectUI <- renderUI({ 
   
@@ -298,4 +305,28 @@ output$selectUI <- renderUI({
 
 })
 
+output$text1 <- renderText({ 
+  paste("Food Analysis that goes from",
+        format( input$dates[1], "%b-%d")  , "to",   format( input$dates[2], "%b-%d"))
 })
+
+
+output$text2 <- renderText({ 
+  paste("Food Data that goes from",
+        format( input$dates[1], "%b-%d")  , "to",   format( input$dates[2], "%b-%d"))
+})
+
+output$text3 <- renderText({ 
+""
+
+})
+
+
+output$text_start <- renderText({ 
+"First enter your user name, and select the Date Range on this tab and click SUBMIT.  You can analyze specific foods on the Food 
+Analysis tab and see an aggregation of the foods you've
+eaten during the time period on the Food Data tab. *** YOUR DIARY MUST BE PUBLIC***"
+}) 
+
+
+}) # End of Server
