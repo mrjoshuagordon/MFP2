@@ -66,7 +66,7 @@ library(plotrix)
 library(xts)
 library(RCurl)
 library(XML)
-#library(markdown)
+library(markdown)
 
 
 ########## Get Data Function  ##############################
