@@ -42,7 +42,7 @@
 #   
 # ))
 
-library(markdown)
+#library(markdown)
 
 shinyUI(navbarPage("MyFitnessPal Analyzer",
                    tabPanel("Macro Analysis",
