@@ -75,7 +75,7 @@ rn = cfc[,1]
 cfc = cfc[,-1]
 row.names(cfc) = rn
 
-if(today$calories < 1000) {
+if(today$calories < goal/2) {
 
  
   if(sum(today[-1])==0){
@@ -89,7 +89,11 @@ macro = macros.needed[,-c(1)]
   reEat = foodCompareOut(tables[which(tables$day == Sys.Date()),])
   rn = reEat[,1]
   reEat = reEat[,-1]
-  row.names(reEat) = rn
+  rnew = paste(rn[which(  rn ==  names(which(table(droplevels(rn))>1)))],  1:length(rn[which(  rn ==  names(which(table(droplevels(rn))>1)))]),sep="")
+  rg = as.character(droplevels(rn))
+  rg[which(  rn ==  names(which(table(droplevels(rn))>1)))] = as.character(rnew)
+  
+  row.names(reEat) = rg
   reEat = rbind(reEat, cfc[1:floor(.5*nrow(cfc)),]  )
   today = colSums(reEat) 
   
