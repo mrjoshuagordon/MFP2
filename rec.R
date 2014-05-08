@@ -5,7 +5,7 @@ min.date = Sys.Date()-10
 max.date = Sys.Date()
 date = seq(as.Date(min.date, "%Y-%m-%d"), as.Date(max.date, "%Y-%m-%d"), by=1)
 
-# theurl = paste("http://www.myfitnesspal.com/reports/printable_diary/", "GoPhil04", "?from=", date[1], "&to=" , date[1], sep="") 
+# theurl = paste("http://www.myfitnesspal.com/reports/printable_diary/", "GoPhil04",MyFitnessPalAnalyzer "?from=", date[1], "&to=" , date[1], sep="") 
 # scrape = readHTMLTable(theurl, header=F)
 
 ns = c("Foods" ,   "Calories" ,"Carbs" ,   "Fat"     , "Protein"  ,"Cholest" , "Sodium"  , "Sugars" ,  "Fiber"  ) 
