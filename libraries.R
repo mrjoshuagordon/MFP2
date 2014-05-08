@@ -363,3 +363,23 @@ recFood = function(tables, goal){
 
 #goal = 5000
 #recFood(tables,goal)
+
+
+foodCompareOut = function(tables){
+  
+  food = tables
+  
+  Foods = food$Foods
+  calories = as.numeric(gsub(",","",food$Calories))
+  carbs = as.numeric(gsub("[A-z]", "", food$Carbs) )
+  fat = as.numeric(gsub("[A-z]", "", food$Fat) )
+  protein = as.numeric(gsub("[A-z]", "", food$Protein) )
+  fiber = as.numeric(gsub("[A-z]", "", food$Fiber) )
+  
+  temp = data.frame(Foods,calories, carbs, fat, protein, fiber) 
+  
+  
+  
+  return(temp)
+}
+
