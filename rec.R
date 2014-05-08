@@ -1,14 +1,16 @@
+
+
 goal = 2800
 min.date = Sys.Date()-10
 max.date = Sys.Date()
 date = seq(as.Date(min.date, "%Y-%m-%d"), as.Date(max.date, "%Y-%m-%d"), by=1)
 
-theurl = paste("http://www.myfitnesspal.com/reports/printable_diary/", "s2konstantine", "?from=", date[1], "&to=" , date[1], sep="") 
-scrape = readHTMLTable(theurl, header=F)
+# theurl = paste("http://www.myfitnesspal.com/reports/printable_diary/", "GoPhil04", "?from=", date[1], "&to=" , date[1], sep="") 
+# scrape = readHTMLTable(theurl, header=F)
 
 ns = c("Foods" ,   "Calories" ,"Carbs" ,   "Fat"     , "Protein"  ,"Cholest" , "Sodium"  , "Sugars" ,  "Fiber"  ) 
 
-theurl = paste("http://www.myfitnesspal.com/reports/printable_diary/", "s2konstantine", "?from=", min.date, "&to=" , max.date, sep="") 
+theurl = paste("http://www.myfitnesspal.com/reports/printable_diary/", "GoPhil04", "?from=", min.date, "&to=" , max.date, sep="") 
 scrape = readHTMLTable(theurl, header=F)
 
 
@@ -34,6 +36,9 @@ tables = na.omit(tables)
 names(tables) = c(ns, "day")
 tables$day = as.Date(tables$day, "%Y-%m-%d")
 tables
+
+
+recFood = function(tables, goal){
 
 if( !(max(tables$day) >= Sys.Date()-1) ) { print("Not Enough Data to Use Historical Data")
 
@@ -75,7 +80,7 @@ rn = cfc[,1]
 cfc = cfc[,-1]
 row.names(cfc) = rn
 
-if(today$calories < goal/2) {
+if(today$calories < goal*.4) {
 
  
   if(sum(today[-1])==0){
@@ -86,15 +91,15 @@ macroCalories = macros.needed[,1]
 macro = macros.needed[,-c(1)]   
 
 } else {
-  reEat = foodCompareOut(tables[which(tables$day == Sys.Date()),])
-  rn = reEat[,1]
-  reEat = reEat[,-1]
+  reEat1 = foodCompareOut(tables[which(tables$day == Sys.Date()),])
+  rn = reEat1[,1]
+  reEat1 = reEat1[,-1]
   rnew = paste(rn[which(  rn ==  names(which(table(droplevels(rn))>1)))],  1:length(rn[which(  rn ==  names(which(table(droplevels(rn))>1)))]),sep="")
   rg = as.character(droplevels(rn))
   rg[which(  rn ==  names(which(table(droplevels(rn))>1)))] = as.character(rnew)
   
-  row.names(reEat) = rg
-  reEat = rbind(reEat, cfc[1:floor(.5*nrow(cfc)),]  )
+  row.names(reEat1) = rg
+  reEat = rbind(reEat1, cfc[1:floor(.5*nrow(cfc)),]  )
   today = colSums(reEat) 
   
   macros.needed = compare[-1] - today
@@ -159,4 +164,13 @@ macro - colSums(outFood[,-1])
 
 } # end else
 
-rec = rbind( reEat,outFood)
+rec = rbind( reEat1,outFood)
+recOut = outFood
+total = colSums(recOut)
+recOut = rbind(recOut, total)
+recOut = data.frame(c(row.names(recOut)[-length(row.names(recOut))], "Total"), recOut) 
+names(recOut)[1] = "Food"
+
+return(recOut)
+
+}

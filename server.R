@@ -89,7 +89,125 @@ shinyServer(function(input, output,session) {
       tables$day = as.Date(tables$day, "%Y-%m-%d")
       tables
 
+      
+      
+      
+      
+      
     }) # End Isolate 
+    
+  }) # End  dataInput
+    
+    
+   getRec <- reactive({
+      
+      #   if( (tolower(input$un) %in% c("s2konstantine", "zj95maxx", "myfitnesspalanalyzer") )) {  # Authentication Attempt 
+      
+      if(input$getRec == 0){
+        options(stringsAsFactors=TRUE)
+        
+        
+        min.date = Sys.Date()-10
+        max.date = Sys.Date()
+        date = seq(as.Date(min.date, "%Y-%m-%d"), as.Date(max.date, "%Y-%m-%d"), by=1)
+        
+      #  theurl = paste("http://www.myfitnesspal.com/reports/printable_diary/", "MyFitnessPalAnalyzer", "?from=", date[1], "&to=" , date[1], sep="") 
+      #  scrape = readHTMLTable(theurl, header=F)
+        
+        ns = c("Foods" ,   "Calories" ,"Carbs" ,   "Fat"     , "Protein"  ,"Cholest" , "Sodium"  , "Sugars" ,  "Fiber"  ) 
+        
+        theurl = paste("http://www.myfitnesspal.com/reports/printable_diary/", "MyFitnessPalAnalyzer", "?from=", min.date, "&to=" , max.date, sep="") 
+        scrape = readHTMLTable(theurl, header=F)
+        
+        
+        ## add date back in *sigh*
+        
+        ######## Append Date ################################################
+        tables = data.frame()
+        for(i in 1:length(scrape)){
+          
+          if(ncol(scrape[[i]])==length(ns)){
+            
+            day = rep(date[i],nrow(scrape[[i]])) 
+            temp =   data.frame(scrape[[i]], day ) 
+            tables = rbind(tables, temp)
+          } else{
+            tables =tables
+            
+          }
+          
+        }
+        
+        tables = na.omit(tables)
+        names(tables) = c(ns, "day")
+        tables$day = as.Date(tables$day, "%Y-%m-%d")
+        tables
+      
+      
+      goal = 2000
+      
+      recFood(tables,goal)
+      
+      
+      } # End if empty check set to s2konstantine 
+      
+      isolate({
+        
+        
+        options(stringsAsFactors=TRUE)
+        
+        
+        min.date = Sys.Date()-10
+        max.date = Sys.Date() 
+        date = seq(as.Date(min.date, "%Y-%m-%d"), as.Date(max.date, "%Y-%m-%d"), by=1)
+        
+        theurl = paste("http://www.myfitnesspal.com/reports/printable_diary/", input$un, "?from=", date[1], "&to=" , date[1], sep="") 
+        scrape = readHTMLTable(theurl, header=F)
+        
+        ns = c("Foods" ,   "Calories" ,"Carbs" ,   "Fat"     , "Protein"  ,"Cholest" , "Sodium"  , "Sugars" ,  "Fiber"  ) 
+        
+        theurl = paste("http://www.myfitnesspal.com/reports/printable_diary/", input$un, "?from=", min.date, "&to=" , max.date, sep="") 
+        scrape = readHTMLTable(theurl, header=F)
+        
+        
+        
+        ######## Append Date ################################################
+        tables = data.frame()
+        for(i in 1:length(scrape)){
+          
+          if(ncol(scrape[[i]])==length(ns)){
+            
+            day = rep(date[i],nrow(scrape[[i]])) 
+            temp =   data.frame(scrape[[i]], day ) 
+            tables = rbind(tables, temp)
+          } else{
+            tables =tables
+            
+          }
+          
+        }
+        
+        tables = na.omit(tables)
+        names(tables) = c(ns, "day")
+        tables$day = as.Date(tables$day, "%Y-%m-%d")
+        tables
+        
+        goal = input$recIn
+        
+        recFood(tables,goal) 
+        
+        
+        
+      }) # End Isolate 
+    
+    
+   })# End getRec
+    
+    
+    
+    
+    
+    
     
   #  } 
 #     else{  # else for authentication, set to s2konstantine 
@@ -139,7 +257,7 @@ shinyServer(function(input, output,session) {
 #       
 #     }
     
-  })
+
   
   
     
@@ -392,6 +510,22 @@ output$text_start <- renderText({
 Analysis tab and see an aggregation of the foods you've
 eaten during the time period on the Food Data tab. *** YOUR DIARY MUST BE PUBLIC***"
 }) 
+
+
+
+# output$textRec <- renderText({ 
+# 
+# })  
+
+
+output$rec = renderDataTable({ 
+  getRec() 
+
+  
+}, options = list(aLengthMenu = c(5, 20, 30), iDisplayLength = 10))
+
+
+
 
 
 }) # End of Server
