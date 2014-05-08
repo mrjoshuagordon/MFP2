@@ -192,7 +192,7 @@ shinyServer(function(input, output,session) {
         tables$day = as.Date(tables$day, "%Y-%m-%d")
         tables
         
-        goal = input$recIn
+        goal = as.numeric(input$recIn)
         
         recFood(tables,goal) 
         

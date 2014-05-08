@@ -200,9 +200,10 @@ recFood = function(tables, goal){
                                              
                                              
   } else {
+    goal= goal
     
     # Monte Carlo Algorithm to Find Food Reccomendations 
-    goal = 2800
+   # goal = 2800
     
     foodIn = foodOut(tables)
     
@@ -220,7 +221,9 @@ recFood = function(tables, goal){
     }
     
     compare = foodIn[which.min(abs(foodIn$calories - goal)),]
-    macros.needed = compare - today
+    
+    macros.needed = round(compare[-1]/(compare$calories/goal),0) - today[-1]
+   #macros.needed = compare - today
     
     if(macros.needed$calories<0) print("Above Expected Calories")
     
@@ -236,13 +239,20 @@ recFood = function(tables, goal){
     cfc = cfc[,-1]
     row.names(cfc) = rn
     
-    if(today$calories < goal*.4) {
+   if(goal>3000) spike = .8 # Tuning Parameters to say how much of the compare days food to eat if not eaten at all 
+   if(goal<=3000 & goal>2000)  spike = .6
+   if(goal <= 2000 & goal>1600) spike = .5
+   if(goal <= 2000 & goal>1600) spike = .5
+   if(goal <=1600) spike = .4
+   
+    if(today[which(names(today)=="calories")] < goal* spike) {
       
       
       if(sum(today[-1])==0){
-        reEat = cfc[1:floor(.5*nrow(cfc)),] 
-        today = colSums(reEat)
-        macros.needed = compare[-1] - today
+        reEat1 = cfc[1:floor(.5*nrow(cfc)),] 
+        today = colSums(reEat1)
+        macros.needed = round(compare[-1]/(compare$calories/goal),0) - today
+        # macros.needed = compare[-1] - today
         macroCalories = macros.needed[,1]  
         macro = macros.needed[,-c(1)]   
         
@@ -258,7 +268,8 @@ recFood = function(tables, goal){
         reEat = rbind(reEat1, cfc[1:floor(.5*nrow(cfc)),]  )
         today = colSums(reEat) 
         
-        macros.needed = compare[-1] - today
+        macros.needed = round(compare[-1]/(compare$calories/goal),0) - today
+       # macros.needed = compare[-1] - today
         macroCalories = macros.needed[,1]  
         macro = macros.needed[,-c(1)]   
         
@@ -267,13 +278,14 @@ recFood = function(tables, goal){
       
       
     } else{
-      macroCalories = macros.needed[,2]  
-      macro = macros.needed[,-c(1,2)]  
+      macroCalories = macros.needed[,1]  
+      macro = macros.needed[,-c(1)]   ## to far from goal 
       
     }  
     # set the food equal to part of yesterday 
     
-    
+    count =1 
+    upper = 0 
     repeat {
       
       
@@ -285,7 +297,14 @@ recFood = function(tables, goal){
       
       ms =  max(2,floor(macroCalories/mc))
       
+      if(ms>30){  # if lots of food is needed (user has not eaten today...prefer higher calorie foods!!) 
+        
+        cfc = cfc[sample(1:nrow(cfc),size=nrow(cfc), rep=T,prob=cfc$calories),]
+      }
+      
       ms = min(17, ms)
+      
+      
       
       sets = combn(x=sample(1:nrow(cfc), size= ms+3,rep=T),m= ms-1)
       setMacros = data.frame(matrix(0,nrow(sets),4) )
@@ -293,7 +312,7 @@ recFood = function(tables, goal){
         test = colSums(cfc[sets[,i],])[-1]
         setMacros[i,] = test
         
-      }
+      } # End for
       names(setMacros) = names(test)
       
       cfc2 = data.frame(matrix(0,nrow(setMacros),ncol(setMacros)))
@@ -302,16 +321,27 @@ recFood = function(tables, goal){
       for(i in 1:ncol(setMacros)){
         cfc2[,i] = rep(as.numeric(macro[i] ), nrow(setMacros)) - setMacros[,i]  
         
-      }
+      }  # End for
       names(cfc2) = names(test)
       
       
       
       dat = which.min(rowSums(abs(cfc2)))[1]
       
-      if( sum(abs(cfc2[dat,])) < 40 ) break 
+      if( sum(abs(cfc2[dat,])) < 40 + upper ) break 
       
-    }
+      count = count + 1
+      print(paste(count,"-",upper))
+    
+      if(ncol(sets)<800) mover = 3  # Tuning Parameters 
+      if(ncol(sets)>=800 & ncol(sets)< 2000) mover = 5
+      if(ncol(sets>=2000)) mover = 100
+      
+      if(count%%3==0) {  upper = upper + mover }  # Break if taking to long 
+      if(upper>9) break
+      if(ncol(sets)>1200 & count>1) break
+      
+    } # end Repeat 
     
     out = sets[,dat]
     outFood = cfc[out,]
@@ -321,7 +351,7 @@ recFood = function(tables, goal){
   } # end else
   
   rec = rbind( reEat1,outFood)
-  recOut = outFood
+  recOut = rec
   total = colSums(recOut)
   recOut = rbind(recOut, total)
   recOut = data.frame(c(row.names(recOut)[-length(row.names(recOut))], "Total"), recOut) 
@@ -329,7 +359,7 @@ recFood = function(tables, goal){
   
   return(recOut)
   
-}
+} # End recFood 
 
-
-
+#goal = 5000
+#recFood(tables,goal)
