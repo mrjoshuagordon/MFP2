@@ -247,7 +247,7 @@ recFood = function(tables, goal){
    
     if(today[which(names(today)=="calories")] < goal* spike) {
       
-      
+      reEat1 = data.frame()
       if(sum(today[-1])==0){
         reEat1 = cfc[1:floor(.5*nrow(cfc)),] 
         today = colSums(reEat1)
@@ -349,6 +349,14 @@ recFood = function(tables, goal){
     macro - colSums(outFood[,-1])
     
   } # end else
+  
+  if(nrow(reEat1)>0){
+    rec = rbind( reEat1,outFood)
+    
+  } else{
+    
+    rec = outFood
+  }
   
   rec = rbind( reEat1,outFood)
   recOut = rec
