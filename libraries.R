@@ -366,7 +366,7 @@ recFood = function(tables, goal){
 
 
 foodCompareOut = function(tables){
-  
+  # in
   food = tables
   
   Foods = food$Foods
