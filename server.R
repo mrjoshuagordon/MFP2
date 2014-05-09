@@ -512,10 +512,10 @@ eaten during the time period on the Food Data tab. *** YOUR DIARY MUST BE PUBLIC
 }) 
 
 
-
-output$textRec <- renderText({ 
-"Loading..."
-})  
+# 
+# output$textRec <- renderText({ 
+# "Loading..."
+# })  
 
 
 output$rec = renderDataTable({ 
