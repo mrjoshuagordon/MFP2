@@ -107,7 +107,7 @@ shinyServer(function(input, output,session) {
         options(stringsAsFactors=TRUE)
         
         
-        min.date = Sys.Date()-10
+        min.date = Sys.Date()-3
         max.date = Sys.Date()
         date = seq(as.Date(min.date, "%Y-%m-%d"), as.Date(max.date, "%Y-%m-%d"), by=1)
         
@@ -144,7 +144,7 @@ shinyServer(function(input, output,session) {
         tables
       
       
-      goal = 2000
+      goal = 0
       
       recFood(tables,goal)
       
@@ -513,16 +513,21 @@ eaten during the time period on the Food Data tab. *** YOUR DIARY MUST BE PUBLIC
 
 
 
-# output$textRec <- renderText({ 
-# 
-# })  
+output$textRec <- renderText({ 
+"Loading..."
+})  
 
 
 output$rec = renderDataTable({ 
-  getRec() 
+
+      getRec() 
+      
+
+  
 
   
 }, options = list(aLengthMenu = c(5, 20, 30), iDisplayLength = 10))
+
 
 
 

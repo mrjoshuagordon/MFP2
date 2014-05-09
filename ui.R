@@ -1,6 +1,7 @@
 
 shinyUI(navbarPage("MyFitnessPal Analyzer",
                    tabPanel("Macro Analysis",
+                          
                             sidebarLayout(
                               sidebarPanel(
                                 h4(textOutput("text_un")),
@@ -18,6 +19,7 @@ shinyUI(navbarPage("MyFitnessPal Analyzer",
                                 
                               ),
                               mainPanel(
+                                
                                 plotOutput(outputId = "main_plot", height = "500px", width="600px")
                               )
                             )
@@ -46,14 +48,16 @@ shinyUI(navbarPage("MyFitnessPal Analyzer",
                             
                    ),
                    tabPanel("Food Recommendation",
+                            
                             sidebarPanel( 
                           #    h3(textOutput("textRec")),
                             textInput("recIn",   "Please enter a calorie goal.  The system will search for similar days in your history during the previous 10 days and select those macros. The 
-  algorithm takes a little bit of time to find the best foods for your macros. Calorie Goal:", "2000"),
+  algorithm takes a little bit of time to find the best foods for your macros. Calorie Goal:", "0"),
                             actionButton("getRec", "Get Recommendation")
                             )
                             , mainPanel( 
                            # h3(textOutput("text2")),
+                                                            
                             dataTableOutput("rec")
                             ) 
                             

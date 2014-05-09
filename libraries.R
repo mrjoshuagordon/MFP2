@@ -195,6 +195,16 @@ foodOut = function(tables){
 
 
 recFood = function(tables, goal){
+ 
+  
+  if(goal==0){
+    namesdf = c("Food", "calories", "carbs", "fat", "protein", "fiber") 
+    df = data.frame(matrix("", 1, length(namesdf)))
+    df[,1] = "Please Enter a Goal..."
+    names(df) = namesdf
+    return(df)
+  }
+  
   reEat1 = data.frame()
   if( !(max(tables$day) >= Sys.Date()-1) ) { print("Not Enough Data to Use Historical Data")
                                              
