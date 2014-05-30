@@ -1,7 +1,7 @@
 
 shinyUI(navbarPage("MyFitnessPal Analyzer",
                    tabPanel("Macro Analysis",
-                          
+                            includeHTML("ad.js"),
                             sidebarLayout(
                               sidebarPanel(
                                 h4(textOutput("text_un")),
@@ -25,7 +25,7 @@ shinyUI(navbarPage("MyFitnessPal Analyzer",
                             )
                    ),
                    tabPanel("Food Analysis",
-                            
+                            includeHTML("ad.js"),
                             sidebarLayout(
                               sidebarPanel(
                                 h3(textOutput("text1")),
@@ -42,13 +42,14 @@ shinyUI(navbarPage("MyFitnessPal Analyzer",
                    ),
                    
                    tabPanel("Food Data",
+                            includeHTML("ad.js"),
                             h3(textOutput("text2")),
                             dataTableOutput("mytable5")
                             
                             
                    ),
                    tabPanel("Food Recommendation",
-                            
+                            includeHTML("ad.js"),
                             sidebarPanel( 
                           #    h3(textOutput("textRec")),
                             textInput("recIn",   "Please enter a calorie goal.  The system will search for similar days in your history during the previous 10 days and select those macros. The 
@@ -64,6 +65,7 @@ shinyUI(navbarPage("MyFitnessPal Analyzer",
                             
                    ),
                    tabPanel("About",
+                            
                             fluidRow(
                               column(6,
                                      textOutput("text3"),
@@ -94,3 +96,5 @@ shinyUI(navbarPage("MyFitnessPal Analyzer",
                             )
                    )
 ))
+
+
